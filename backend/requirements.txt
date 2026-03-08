@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+duckduckgo-search
+dnspython
+pydantic
+python-dotenv
