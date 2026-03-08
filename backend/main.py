@@ -60,29 +60,26 @@ async def generate_leads(request: LeadRequest):
     seen = set()
 
     with DDGS() as ddgs:
-        results = ddgs.text(query, max_results=40)
+        print(f"---> Searching DuckDuckGo for: {query}")
+        # Generator ko list mein convert kar rahe hain taake count kar sakein
+        results = list(ddgs.text(query, max_results=40))
+        
+        print(f"---> DuckDuckGo returned {len(results)} results!")
+        
         for res in results:
-            content = f"{res['title']} {res['body']}".lower()
-            found_emails = re.findall(EMAIL_REGEX, content)
+            text = f"{res['title']} {res['body']}".lower()
+            emails = re.findall(EMAIL_REGEX, text)
             
-            for email in found_emails:
-                if email not in seen:
-                    if True:
-                        # Logic: If domain is tech-heavy, mark as Priority
-                        is_pri = any(email.endswith(t) for t in ['.io', '.ai', '.tech'])
-                        
-                        # Clean up Name/Company from snippet
-                        parts = res['title'].split('|')[0].split('-')
-                        name = parts[0].strip() if len(parts) > 0 else "Tech Lead"
-                        comp = parts[1].strip() if len(parts) > 1 else "SaaS Startup"
-                        
-                        final_leads.append({
-                            "name": name,
-                            "company": comp,
-                            "email": email,
-                            "is_priority": is_pri
+            for email in emails:
+                if email not in seen_emails:
+                    is_high_value = any(email.endswith(tld) for tld in ['.io', '.ai', '.tech'])
+                    
+                    # SMTP Verification waqti taur par bypass hai
+                    if True: 
+                        leads.append({
+                            "name": res.get('title', '').split('|')[0].strip(),
+                            "company": "High-Ticket SaaS" if is_high_value else "Standard Lead",
+                            "email": email
                         })
-                        seen.add(email)
-    return final_leads
-
-# requirements.txt: fastapi, uvicorn, duckduckgo-search, dnspython, pydantic
+                        seen_emails.add(email)
+                        print(f"Found Lead: {email}")
