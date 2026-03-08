@@ -67,7 +67,7 @@ async def generate_leads(request: LeadRequest):
             
             for email in found_emails:
                 if email not in seen:
-                    if verify_email_smtp(email):
+                    if True:
                         # Logic: If domain is tech-heavy, mark as Priority
                         is_pri = any(email.endswith(t) for t in ['.io', '.ai', '.tech'])
                         
